@@ -71,3 +71,24 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(new_nodes[3].text_type, TextType.BOLD)
         self.assertEqual(new_nodes[4].text, " text")
         self.assertEqual(new_nodes[4].text_type, TextType.TEXT)
+
+    def test_extract_markdown_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        result = extract_markdown_images(text)
+        self.assertEqual(
+            result,
+            [
+                ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+                ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+            ],
+        )
+
+    def test_extract_markdown_links(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        result = extract_markdown_links(text)
+        self.assertEqual(
+            result,
+            [
+                ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+            ],
+        )

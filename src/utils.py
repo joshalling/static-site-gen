@@ -28,3 +28,11 @@ def split_nodes_delimiter(nodes, delimiter, text_type):
             type = i % 2 == 1 and text_type or node.text_type
             new_nodes.append(TextNode(text_list[i], type))
     return new_nodes
+
+
+def extract_markdown_images(text):
+    return re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+
+
+def extract_markdown_links(text):
+    return re.findall(r"(?<!!)\[(.*?)\]\((.*?)\)", text)
