@@ -1,6 +1,6 @@
 import unittest
 
-from utils import (
+from inlineutils import (
     text_node_to_html_node,
     split_nodes_delimiter,
     split_nodes_image,
