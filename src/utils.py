@@ -2,6 +2,12 @@ from textnode import TextType, TextNode
 from leafnode import LeafNode
 import re
 
+type_to_delimeter = {
+    TextType.BOLD: "**",
+    TextType.ITALIC: "_",
+    TextType.CODE: "`",
+}
+
 
 def text_node_to_html_node(textnode):
     match textnode.text_type:
@@ -42,6 +48,8 @@ def split_nodes_image(nodes):
                 new_nodes.append(TextNode(text_list[0], node.text_type))
                 new_nodes.append(TextNode(alt, TextType.IMAGE, url))
                 text_to_use = text_list[1]
+            if len(text_to_use) > 0:
+                new_nodes.append(TextNode(text_to_use, node.text_type))
 
         else:
             new_nodes.append(node)
@@ -59,6 +67,8 @@ def split_nodes_link(nodes):
                 new_nodes.append(TextNode(text_list[0], node.text_type))
                 new_nodes.append(TextNode(text, TextType.LINK, url))
                 text_to_use = text_list[1]
+            if len(text_to_use) > 0:
+                new_nodes.append(TextNode(text_to_use, node.text_type))
 
         else:
             new_nodes.append(node)
@@ -71,3 +81,14 @@ def extract_markdown_images(text):
 
 def extract_markdown_links(text):
     return re.findall(r"(?<!!)\[(.*?)\]\((.*?)\)", text)
+
+
+def text_to_text_nodes(text):
+    parent_node = TextNode(text, TextType.TEXT)
+    nodes = [parent_node]
+    for type in TextType:
+        if type in type_to_delimeter:
+            nodes = split_nodes_delimiter(nodes, type_to_delimeter[type], type)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
