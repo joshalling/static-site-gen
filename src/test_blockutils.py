@@ -153,7 +153,7 @@ This is the same paragraph on a new line
 
     def test_block_to_html_heading(self):
         block = "##### This is a _small_ heading with `code` in it"
-        node = blockutils.block_to_html(block)
+        node = blockutils.block_to_html_node(block)
         result = node.to_html()
 
         self.assertEqual(
@@ -163,7 +163,7 @@ This is the same paragraph on a new line
 
     def test_block_to_html_ordered_list(self):
         block = "1. ordered **item** 1\n1. _ordered_ item 2"
-        node = blockutils.block_to_html(block)
+        node = blockutils.block_to_html_node(block)
         result = node.to_html()
 
         self.assertEqual(
@@ -173,7 +173,7 @@ This is the same paragraph on a new line
 
     def test_block_to_html_unordered_list(self):
         block = "- ordered **item** 1\n- _ordered_ item 2"
-        node = blockutils.block_to_html(block)
+        node = blockutils.block_to_html_node(block)
         result = node.to_html()
 
         self.assertEqual(
@@ -187,7 +187,7 @@ This is the same paragraph on a new line
         def funky_func():
             pass
         ```"""
-        node = blockutils.block_to_html(block)
+        node = blockutils.block_to_html_node(block)
         result = node.to_html()
 
         self.assertEqual(
@@ -201,7 +201,7 @@ This is the same paragraph on a new line
 
     def test_block_to_html_quote(self):
         block = "> This is a quote\n> on two lines"
-        node = blockutils.block_to_html(block)
+        node = blockutils.block_to_html_node(block)
         result = node.to_html()
 
         self.assertEqual(
@@ -211,7 +211,7 @@ This is the same paragraph on a new line
 
     def test_block_to_html_paragraph(self):
         block = "This is a **long** paragraph\nwith multiple lines of text."
-        node = blockutils.block_to_html(block)
+        node = blockutils.block_to_html_node(block)
         result = node.to_html()
 
         self.assertEqual(

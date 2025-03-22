@@ -91,7 +91,7 @@ def get_block_meta(block, blocktype):
     return children, tag
 
 
-def block_to_html(block):
+def block_to_html_node(block):
     blocktype = block_to_blocktype(block)
     html_node = None
     if blocktype == BlockType.HEADING:
@@ -128,6 +128,6 @@ def block_to_html(block):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
-    html_nodes = list(map(lambda block: block_to_html(block), blocks))
+    html_nodes = list(map(lambda block: block_to_html_node(block), blocks))
 
     return ParentNode("div", html_nodes)
