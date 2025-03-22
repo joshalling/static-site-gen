@@ -2,6 +2,8 @@ from enum import Enum
 import re
 
 import inlineutils
+from leafnode import LeafNode
+from parentnode import ParentNode
 
 
 class BlockType(Enum):
@@ -78,45 +80,54 @@ def get_block_meta(block, blocktype):
     prefix, text = split_block_of_type(block, blocktype)
 
     textnodes = inlineutils.text_to_text_nodes(text)
-    inner = "".join(
+    children = list(
         map(
-            lambda node: inlineutils.text_node_to_html_node(node).to_html(),
+            lambda node: inlineutils.text_node_to_html_node(node),
             textnodes,
         )
     )
     tag = blocktype_to_html_tag(blocktype, prefix)
 
-    return inner, tag
+    return children, tag
 
 
 def block_to_html(block):
     blocktype = block_to_blocktype(block)
-    html_lines = []
-    tag = None
+    html_node = None
     if blocktype == BlockType.HEADING:
-        inner, tag = get_block_meta(block, blocktype)
-        html_lines.append(inner)
+        children, tag = get_block_meta(block, blocktype)
+        html_node = ParentNode(tag, children)
     elif blocktype == BlockType.CODE:
-        prefix, text = split_block_of_type(block, blocktype)
-        tag = blocktype_to_html_tag(blocktype, prefix)
-        html_lines.append(text)
-    else:
+        _, text = split_block_of_type(block, blocktype)
+        html_node = ParentNode("pre", [LeafNode("code", text)])
+    elif blocktype in [
+        BlockType.ORDERED_LIST,
+        BlockType.UNORDERED_LIST,
+    ]:
         lines = block.split("\n")
+        list_children = []
         for line in lines:
-            inner, tag = get_block_meta(line, blocktype)
+            children, tag = get_block_meta(line, blocktype)
             if (
                 blocktype == BlockType.ORDERED_LIST
                 or blocktype == BlockType.UNORDERED_LIST
             ):
-                html_lines.append(f"<li>{inner}</li>")
-                continue
-            html_lines.append(inner)
-    delimiter = " " if blocktype in [BlockType.QUOTE, BlockType.PARAGRAPH] else ""
+                list_children.append(ParentNode("li", children))
+        html_node = ParentNode(tag, list_children)
+    elif blocktype == BlockType.PARAGRAPH:
+        text = " ".join(block.split("\n"))
+        children, tag = get_block_meta(text, blocktype)
+        html_node = ParentNode(tag, children)
+    else:
+        text = " ".join(block.replace("\n> ", "\n").split("\n"))
+        children, tag = get_block_meta(text, blocktype)
+        html_node = ParentNode(tag, children)
 
-    return f"<{tag}>{delimiter.join(html_lines)}</{tag}>"
+    return html_node
 
 
-def markdown_to_html(markdown):
+def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
-    html_blocks = list(map(lambda block: block_to_html(block), blocks))
-    return f"<div>{"".join(html_blocks)}</div>"
+    html_nodes = list(map(lambda block: block_to_html(block), blocks))
+
+    return ParentNode("div", html_nodes)

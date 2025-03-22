@@ -153,7 +153,8 @@ This is the same paragraph on a new line
 
     def test_block_to_html_heading(self):
         block = "##### This is a _small_ heading with `code` in it"
-        result = blockutils.block_to_html(block)
+        node = blockutils.block_to_html(block)
+        result = node.to_html()
 
         self.assertEqual(
             "<h5>This is a <i>small</i> heading with <code>code</code> in it</h5>",
@@ -162,7 +163,8 @@ This is the same paragraph on a new line
 
     def test_block_to_html_ordered_list(self):
         block = "1. ordered **item** 1\n1. _ordered_ item 2"
-        result = blockutils.block_to_html(block)
+        node = blockutils.block_to_html(block)
+        result = node.to_html()
 
         self.assertEqual(
             "<ol><li>ordered <b>item</b> 1</li><li><i>ordered</i> item 2</li></ol>",
@@ -171,7 +173,8 @@ This is the same paragraph on a new line
 
     def test_block_to_html_unordered_list(self):
         block = "- ordered **item** 1\n- _ordered_ item 2"
-        result = blockutils.block_to_html(block)
+        node = blockutils.block_to_html(block)
+        result = node.to_html()
 
         self.assertEqual(
             "<ul><li>ordered <b>item</b> 1</li><li><i>ordered</i> item 2</li></ul>",
@@ -184,20 +187,22 @@ This is the same paragraph on a new line
         def funky_func():
             pass
         ```"""
-        result = blockutils.block_to_html(block)
+        node = blockutils.block_to_html(block)
+        result = node.to_html()
 
         self.assertEqual(
-            """<pre>
+            """<pre><code>
         // This **is** _some_ preformatted code
         def funky_func():
             pass
-        </pre>""",
+        </code></pre>""",
             result,
         )
 
     def test_block_to_html_quote(self):
         block = "> This is a quote\n> on two lines"
-        result = blockutils.block_to_html(block)
+        node = blockutils.block_to_html(block)
+        result = node.to_html()
 
         self.assertEqual(
             "<blockquote>This is a quote on two lines</blockquote>",
@@ -206,7 +211,8 @@ This is the same paragraph on a new line
 
     def test_block_to_html_paragraph(self):
         block = "This is a **long** paragraph\nwith multiple lines of text."
-        result = blockutils.block_to_html(block)
+        node = blockutils.block_to_html(block)
+        result = node.to_html()
 
         self.assertEqual(
             "<p>This is a <b>long</b> paragraph with multiple lines of text.</p>",
@@ -235,8 +241,41 @@ def my_func():
 > This is a blockquote
 > with 2 lines
 """
-        result = blockutils.markdown_to_html(markdown)
+        node = blockutils.markdown_to_html_node(markdown)
+        result = node.to_html()
 
-        expected = '<div><h1>Heading 1</h1><p>This is a description but we added some <b>bold</b> and <i>italic</i> words.</p><h2>This is the first subheading</h2><pre>\n// we should include some code\ndef my_func():\n    print("do something")\n</pre><ul><li>item 1</li><li>item <code>2</code></li></ul><ol><li>numbered 1</li><li><i>numbered</i> 2</li></ol><blockquote>This is a blockquote with 2 lines</blockquote></div>'
+        expected = '<div><h1>Heading 1</h1><p>This is a description but we added some <b>bold</b> and <i>italic</i> words.</p><h2>This is the first subheading</h2><pre><code>\n// we should include some code\ndef my_func():\n    print("do something")\n</code></pre><ul><li>item 1</li><li>item <code>2</code></li></ul><ol><li>numbered 1</li><li><i>numbered</i> 2</li></ol><blockquote>This is a blockquote with 2 lines</blockquote></div>'
 
         self.assertEqual(result, expected)
+
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+        node = blockutils.markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+        node = blockutils.markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>\nThis is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
