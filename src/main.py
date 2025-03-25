@@ -1,6 +1,5 @@
 from blockutils import markdown_to_html_node
 from mdutils import extract_title
-from textnode import TextNode, TextType
 import shutil
 import os
 
@@ -12,17 +11,14 @@ TEMPLATE = "template.html"
 
 def main():
     setup_public()
-    generate_page(
-        os.path.join(CONTENT, "index.md"), TEMPLATE, os.path.join(PUBLIC, "index.html")
-    )
 
 
 def setup_public():
     if os.path.exists(PUBLIC):
         shutil.rmtree(PUBLIC)
-
     os.mkdir(PUBLIC)
     copy_files(STATIC, PUBLIC)
+    copy_files(CONTENT, PUBLIC)
 
 
 def copy_files(src, dest):
@@ -32,7 +28,12 @@ def copy_files(src, dest):
             src_str = os.path.join(src, item)
             dest_str = os.path.join(dest, item)
             if os.path.isfile(src_str):
-                shutil.copy(src_str, dest_str)
+                filename, ext = os.path.splitext(item)
+                if ext == ".md":
+                    dest_str = os.path.join(dest, filename + ".html")
+                    generate_page(src_str, TEMPLATE, dest_str)
+                else:
+                    shutil.copy(src_str, dest_str)
             else:
                 os.mkdir(dest_str)
                 copy_files(src_str, dest_str)
