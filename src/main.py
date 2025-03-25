@@ -7,7 +7,7 @@ import sys
 basepath = "/" if len(sys.argv) <= 1 else sys.argv[1]
 
 STATIC = "static"
-PUBLIC = "public"
+PUBLIC = "docs"
 CONTENT = "content"
 TEMPLATE = "template.html"
 
